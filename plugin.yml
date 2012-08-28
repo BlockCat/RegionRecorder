@@ -1,0 +1,5 @@
+name: RegionRecorder
+version: 1
+main: net.projectacc.RegionRecorder.RegionRecorder
+commands:
+  RR:
