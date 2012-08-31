@@ -34,39 +34,70 @@ public class RRCommander implements CommandExecutor {
 			return true;
 		}
 
-		if (args.length == 1 && args[0].equals("new")) {
+		if (args.length >= 1 && args[0].equals("new")) {
 			if (isPlayerInRegion(player)) {
-				ProtectedRegion region = this.getRegion(player);
-				player.sendMessage(ChatColor.BLUE + "Chats:");
-				for (String s :plugin.getConfiguration().getMessages(region.getId())) {
-					s = s.replace(":", " : " + ChatColor.GREEN);
-					player.sendMessage(ChatColor.AQUA + s);
-				}				
+				int page = 0;
+				try {
+					page = Integer.parseInt(args[1]) - 1;
+				} catch(Exception e) {} 
+				sendMessages(player, page);
 			} else {
 				player.sendMessage(ChatColor.RED + "Not in region");
 			}
 		}
 
-		if (args.length >= 1 && args[0].equalsIgnoreCase("-old")) {
+
+		if (args.length >= 1 && args[0].equalsIgnoreCase("old")) {
 			if (isPlayerInRegion(player)) {
-				ProtectedRegion region = this.getRegion(player);
-				player.sendMessage(ChatColor.BLUE + "Chats:");
-				List<String> list = plugin.getConfiguration().getOldMessages(region.getId());
-				if (list != null)
-				if (!list.isEmpty()) {
-					for (String s :list) {
-						s = s.replace(":", " : " + ChatColor.GREEN);
-						player.sendMessage(ChatColor.AQUA + s);
-					}	
-				} else {
-					player.sendMessage(ChatColor.RED + "No chats to display.");
-				}
+				int page;
+				try {
+					page = Integer.parseInt(args[1]) - 1;
+				} catch(Exception e) {
+					page = 0;
+				} 
+				sendOldMessages(player, page);
 			} else {
 				player.sendMessage(ChatColor.RED + "Not in region");
 			}
 		}
 
 		return true;
+	}
+
+	private void sendOldMessages(Player player , int page) {
+		ProtectedRegion region = this.getRegion(player);
+		List<String> msg = plugin.getConfiguration().getOldMessages(region.getId());
+		player.sendMessage(ChatColor.BLUE + "Chats: Page: " + (page + 1) + "/"+ (msg.size()/10) + 1 );
+		for (int i = 0; i <= 10 ; i++) {
+			String s;
+			int d = i + (10 * page);
+			try {
+				s = msg.get(d);
+			} catch(IndexOutOfBoundsException e) {
+				s = "";
+			}
+			s = s.replace(":", " : " + ChatColor.GREEN);
+			player.sendMessage(ChatColor.AQUA + s);
+		}				
+
+	}
+
+	private void sendMessages(Player player , int page) {
+		ProtectedRegion region = this.getRegion(player);
+		List<String> msg = plugin.getConfiguration().getMessages(region.getId());
+		player.sendMessage(ChatColor.BLUE + "Chats: Page: " + (page + 1) + "/"+ (msg.size()/10) + 1);
+		for (int i = 0; i <= 10 ; i++) {
+			String s;
+			int d = i + (10 * page);
+			try {
+				s = msg.get(d);
+			} catch(IndexOutOfBoundsException e) {
+				s = "";
+			}
+			s = s.replace(":", " : " + ChatColor.GREEN);
+			player.sendMessage(ChatColor.AQUA + s);
+		}				
+
 	}
 
 	private boolean isPlayerInRegion (Player player) {
